@@ -180,7 +180,7 @@ class OAuth2Handler:
         }
 
         auth_url = f"{get_oauth_base()}/authorize?{urlencode(params)}"
-        logger.debug("Generated authorization URL: %s", auth_url)
+        logger.debug("Generated authorization URL")
 
         return auth_url, state
 

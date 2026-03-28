@@ -527,5 +527,5 @@ class TickTickV1Client(BaseTickTickClient):
         except TickTickAuthenticationError:
             raise
         except Exception as e:
-            logger.warning("V1 authentication verification failed: %s", e)
+            logger.warning("V1 authentication verification failed (%s)", type(e).__name__)
             return False

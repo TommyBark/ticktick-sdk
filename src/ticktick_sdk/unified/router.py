@@ -297,7 +297,7 @@ class APIRouter:
                 results["v1"] = await self.v1_client.verify_authentication()
                 self._v1_verified = results["v1"]
             except Exception as e:
-                logger.warning("V1 verification failed: %s", e)
+                logger.warning("V1 verification failed (%s)", type(e).__name__)
                 self._v1_verified = False
 
         if self.v2_client and self.v2_client.is_authenticated:
@@ -305,7 +305,7 @@ class APIRouter:
                 results["v2"] = await self.v2_client.verify_authentication()
                 self._v2_verified = results["v2"]
             except Exception as e:
-                logger.warning("V2 verification failed: %s", e)
+                logger.warning("V2 verification failed (%s)", type(e).__name__)
                 self._v2_verified = False
 
         return results

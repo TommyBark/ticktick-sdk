@@ -261,7 +261,7 @@ async def lifespan(mcp: FastMCP) -> AsyncIterator[dict[str, Any]]:
         logger.info("TickTick client connected successfully")
         yield {"client": client}
     except Exception as e:
-        logger.error("Failed to initialize TickTick client: %s", e)
+        logger.error("Failed to initialize TickTick client (%s)", type(e).__name__)
         raise
     finally:
         if "client" in locals():
@@ -295,7 +295,7 @@ def handle_error(e: Exception, operation: str) -> str:
     2. Why it might have happened
     3. Specific steps to resolve the issue
     """
-    logger.exception("Error in %s: %s", operation, e)
+    logger.error("Error in %s (%s)", operation, type(e).__name__)
 
     error_type = type(e).__name__
     error_str = str(e)
@@ -2783,7 +2783,7 @@ def _apply_tool_filtering():
         try:
             mcp._tool_manager.remove_tool(tool_name)
         except Exception as e:
-            logger.warning("Failed to remove tool %s: %s", tool_name, e)
+            logger.warning("Failed to remove tool %s (%s)", tool_name, type(e).__name__)
 
     remaining = len(all_tools) - len(tools_to_remove)
     logger.info(

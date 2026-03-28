@@ -217,7 +217,7 @@ class SessionHandler:
         payload = {"username": username, "password": password}
         headers = self._get_headers()
 
-        logger.debug("Authenticating user: %s", username)
+        logger.debug("Authenticating user")
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             try:
@@ -267,7 +267,7 @@ class SessionHandler:
             cookies=cookies,
         )
 
-        logger.info("Successfully authenticated user: %s", username)
+        logger.info("Successfully authenticated user")
         return self._session
 
     async def authenticate_2fa(

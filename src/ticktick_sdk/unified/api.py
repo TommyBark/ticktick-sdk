@@ -294,8 +294,8 @@ class UnifiedTickTickAPI:
             )
             logger.info("V1 client initialized")
         except Exception as e:
-            errors.append(f"V1 initialization failed: {e}")
-            logger.error("Failed to initialize V1 client: %s", e)
+            errors.append(f"V1 initialization failed ({type(e).__name__})")
+            logger.error("Failed to initialize V1 client (%s)", type(e).__name__)
 
         # Initialize V2 client
         try:
@@ -315,8 +315,8 @@ class UnifiedTickTickAPI:
             else:
                 errors.append("V2 credentials not provided")
         except Exception as e:
-            errors.append(f"V2 initialization failed: {e}")
-            logger.error("Failed to initialize V2 client: %s", e)
+            errors.append(f"V2 initialization failed ({type(e).__name__})")
+            logger.error("Failed to initialize V2 client (%s)", type(e).__name__)
 
         # Create router
         self._router = APIRouter(
@@ -1667,7 +1667,7 @@ class UnifiedTickTickAPI:
             except TickTickNotFoundError:
                 raise
             except Exception as e:
-                logger.warning("V2 get_project_with_data failed, trying V1: %s", e)
+                logger.warning("V2 get_project_with_data failed, trying V1 (%s)", type(e).__name__)
 
         # Fall back to V1 if available
         if self._router.has_v1:
@@ -1685,7 +1685,7 @@ class UnifiedTickTickAPI:
             except TickTickNotFoundError:
                 raise
             except Exception as e:
-                logger.warning("V1 get_project_with_data also failed: %s", e)
+                logger.warning("V1 get_project_with_data also failed (%s)", type(e).__name__)
 
         raise TickTickAPIUnavailableError(
             "Could not get project with data: both V1 and V2 failed",
