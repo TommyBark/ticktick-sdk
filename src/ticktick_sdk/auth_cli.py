@@ -126,7 +126,7 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
 
     def _send_success_response(self) -> None:
         """Send success HTML response."""
-        html = """
+        html_body = """
         <!DOCTYPE html>
         <html>
         <head>
@@ -166,7 +166,7 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
         </body>
         </html>
         """
-        self._send_html_response(200, html)
+        self._send_html_response(200, html_body)
 
     def _send_error_response(self, error: str | None = None) -> None:
         """Send error HTML response."""

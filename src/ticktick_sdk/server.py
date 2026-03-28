@@ -295,7 +295,7 @@ def handle_error(e: Exception, operation: str) -> str:
     2. Why it might have happened
     3. Specific steps to resolve the issue
     """
-    logger.error("Error in %s (%s)", operation, type(e).__name__)
+    logger.error("Error in %s (%s)", operation, type(e).__name__, exc_info=True)
 
     error_type = type(e).__name__
     error_str = str(e)
