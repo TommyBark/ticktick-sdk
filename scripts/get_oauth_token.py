@@ -128,9 +128,9 @@ async def run_auto_mode(handler: OAuth2Handler, auth_url: str):
 
     if OAuthCallbackHandler.error:
         print(f"ERROR: Authorization failed: {OAuthCallbackHandler.error}")
-        return None
+        return None, None
 
-    return OAuthCallbackHandler.authorization_code
+    return OAuthCallbackHandler.authorization_code, OAuthCallbackHandler.state
 
 
 async def run_manual_mode(handler: OAuth2Handler, auth_url: str):
@@ -149,25 +149,30 @@ async def run_manual_mode(handler: OAuth2Handler, auth_url: str):
     print("        http://127.0.0.1:8080/callback?code=XXXXX&state=YYYYY")
     print()
     print("        (The page will show an error - that's OK!)")
-    print("        Copy the 'code' value from that URL.")
+    print("        Copy the FULL callback URL or query string from that page.")
     print()
     print("=" * 70)
     print()
 
-    code = input("Paste the 'code' here: ").strip()
+    callback_value = input("Paste the callback URL or query string here: ").strip()
+
+    if not callback_value:
+        print("ERROR: No code provided")
+        return None, None
+
+    parsed = parse_qs(callback_value.split("?", 1)[-1] if "?" in callback_value else callback_value)
+    code = parsed.get("code", [None])[0]
+    state = parsed.get("state", [None])[0]
 
     if not code:
-        print("ERROR: No code provided")
-        return None
+        print("ERROR: No authorization code found in callback data")
+        return None, None
 
-    # Clean up the code if they pasted more than just the code
-    if "code=" in code:
-        # They pasted the full URL or query string
-        parsed = parse_qs(code.split("?")[-1] if "?" in code else code)
-        if "code" in parsed:
-            code = parsed["code"][0]
+    if not state:
+        print("ERROR: No state found. Paste the full callback URL so the response can be verified.")
+        return None, None
 
-    return code
+    return code, state
 
 
 async def main():
@@ -213,19 +218,23 @@ async def main():
 
     # Get authorization code
     if args.manual:
-        code = await run_manual_mode(handler, auth_url)
+        code, callback_state = await run_manual_mode(handler, auth_url)
     else:
-        code = await run_auto_mode(handler, auth_url)
+        code, callback_state = await run_auto_mode(handler, auth_url)
 
     if not code:
         print("ERROR: No authorization code received")
+        return
+
+    if not callback_state:
+        print("ERROR: No state received in OAuth callback")
         return
 
     print("\nExchanging authorization code for access token...")
 
     # Exchange code for token
     try:
-        token = await handler.exchange_code(code=code, state=None)
+        token = await handler.exchange_code(code=code, state=callback_state)
     except Exception as e:
         print(f"\nERROR: Token exchange failed: {e}")
         return

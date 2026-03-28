@@ -318,7 +318,7 @@ async def run_auto_mode(
     handler: OAuth2Handler,
     auth_url: str,
     callback_port: int,
-) -> str | None:
+) -> tuple[str | None, str | None]:
     """
     Run OAuth flow with automatic browser and local callback server.
 
@@ -331,7 +331,8 @@ async def run_auto_mode(
         callback_port: The port to listen on for the callback.
 
     Returns:
-        The authorization code if successful, None otherwise.
+        Tuple of (authorization code, callback state) if successful,
+        or (None, None) on failure.
     """
     print("Step 1: Opening browser for authorization...")
     print()
@@ -367,15 +368,15 @@ async def run_auto_mode(
                 Colors.RED,
             )
         )
-        return None
+        return (None, None)
 
-    return OAuthCallbackHandler.authorization_code
+    return (OAuthCallbackHandler.authorization_code, OAuthCallbackHandler.state)
 
 
 async def run_manual_mode(
     handler: OAuth2Handler,
     auth_url: str,
-) -> str | None:
+) -> tuple[str | None, str | None]:
     """
     Run OAuth flow manually (SSH-friendly).
 
@@ -387,7 +388,8 @@ async def run_manual_mode(
         auth_url: The authorization URL to display.
 
     Returns:
-        The authorization code if provided, None otherwise.
+        Tuple of (authorization code, callback state) if provided,
+        or (None, None) on failure.
     """
     width = 70
     print(colorize("=" * width, Colors.CYAN))
@@ -409,33 +411,50 @@ async def run_manual_mode(
     print("        http://127.0.0.1:8080/callback?code=XXXXX&state=YYYYY")
     print()
     print("        (The page will show an error - that's OK!)")
-    print("        Copy the 'code' value from that URL.")
+    print("        Copy the FULL callback URL or query string from that page.")
     print()
     print(colorize("=" * width, Colors.CYAN))
     print()
 
     try:
-        code = input("Paste the 'code' here: ").strip()
+        callback_value = input("Paste the callback URL or query string here: ").strip()
     except (KeyboardInterrupt, EOFError):
         print()
         print(colorize("Cancelled by user.", Colors.YELLOW))
-        return None
+        return (None, None)
+
+    if not callback_value:
+        print(colorize("ERROR: No code provided", Colors.RED))
+        return (None, None)
+
+    code: str | None = None
+    state: str | None = None
+
+    # Parse either a full callback URL or just the query string.
+    try:
+        parsed = parse_qs(
+            callback_value.split("?", 1)[-1] if "?" in callback_value else callback_value
+        )
+        code = parsed.get("code", [None])[0]
+        state = parsed.get("state", [None])[0]
+    except Exception:
+        code = None
+        state = None
 
     if not code:
-        print(colorize("ERROR: No code provided", Colors.RED))
-        return None
+        print(colorize("ERROR: No authorization code found in callback data", Colors.RED))
+        return (None, None)
 
-    # Clean up the code if they pasted more than just the code
-    if "code=" in code:
-        # They pasted the full URL or query string
-        try:
-            parsed = parse_qs(code.split("?")[-1] if "?" in code else code)
-            if "code" in parsed:
-                code = parsed["code"][0]
-        except Exception:
-            pass  # Use the code as-is
+    if not state:
+        print(
+            colorize(
+                "ERROR: No state found. Paste the full callback URL so the response can be verified.",
+                Colors.RED,
+            )
+        )
+        return (None, None)
 
-    return code
+    return (code, state)
 
 
 # =============================================================================
@@ -513,12 +532,16 @@ async def run_auth_flow(manual: bool = False) -> int:
 
     # Get authorization code
     if manual:
-        code = await run_manual_mode(handler, auth_url)
+        code, callback_state = await run_manual_mode(handler, auth_url)
     else:
-        code = await run_auto_mode(handler, auth_url, callback_port)
+        code, callback_state = await run_auto_mode(handler, auth_url, callback_port)
 
     if not code:
         print(colorize("ERROR: No authorization code received", Colors.RED))
+        return 1
+
+    if not callback_state:
+        print(colorize("ERROR: No state received in OAuth callback", Colors.RED))
         return 1
 
     # Exchange code for token
@@ -526,7 +549,7 @@ async def run_auth_flow(manual: bool = False) -> int:
     print("Exchanging authorization code for access token...")
 
     try:
-        token = await handler.exchange_code(code=code, state=None)
+        token = await handler.exchange_code(code=code, state=callback_state)
     except Exception as e:
         print()
         print(colorize(f"ERROR: Token exchange failed: {e}", Colors.RED))
