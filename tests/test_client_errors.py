@@ -24,6 +24,7 @@ from ticktick_sdk.exceptions import (
     TickTickValidationError,
     TickTickConfigurationError,
 )
+from ticktick_sdk.unified.api import UnifiedTickTickAPI
 
 if TYPE_CHECKING:
     from tests.conftest import MockUnifiedAPI
@@ -157,6 +158,37 @@ class TestAPIErrors:
 
         with pytest.raises(TickTickAPIError):
             await client.get_all_projects()
+
+    async def test_batch_create_recurrence_requires_start_date(self) -> None:
+        """Batch task creation should enforce recurrence validation before API calls."""
+
+        class DummyRouter:
+            has_v2 = True
+
+        class DummyV2Client:
+            def __init__(self) -> None:
+                self.create_called = False
+
+            async def create_task(self, **kwargs: object) -> dict[str, object]:
+                self.create_called = True
+                return {"id2etag": {}}
+
+        api = UnifiedTickTickAPI(
+            client_id="test-client-id",
+            client_secret="test-client-secret",
+            v1_access_token="test-access-token",
+            username="test@example.com",
+            password="test-password",
+        )
+        api._initialized = True
+        api._inbox_id = "inbox123"
+        api._router = DummyRouter()  # type: ignore[assignment]
+        api._v2_client = DummyV2Client()  # type: ignore[assignment]
+
+        with pytest.raises(TickTickConfigurationError):
+            await api.batch_create_tasks([{"title": "Recurring task", "recurrence": "RRULE:FREQ=DAILY"}])
+
+        assert api._v2_client.create_called is False  # type: ignore[union-attr]
 
 
 # =============================================================================

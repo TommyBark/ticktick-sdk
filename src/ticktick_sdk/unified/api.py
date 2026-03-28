@@ -202,6 +202,18 @@ def _count_total_checkins(checkins: list[HabitCheckin]) -> int:
     return sum(1 for c in checkins if c.status == 2)
 
 
+def _validate_recurrence_start_date(
+    start_date: datetime | str | None,
+    repeat_flag: str | None,
+) -> None:
+    """Validate TickTick's recurrence requirement."""
+    if repeat_flag and not start_date:
+        raise TickTickConfigurationError(
+            "Recurrence (repeat_flag) requires start_date. "
+            "TickTick silently ignores recurrence without a start date."
+        )
+
+
 class UnifiedTickTickAPI:
     """
     Unified TickTick API providing version-agnostic operations.
@@ -497,11 +509,7 @@ class UnifiedTickTickAPI:
         self._ensure_initialized()
 
         # Validate: recurrence requires start_date (TickTick silently ignores it otherwise)
-        if repeat_flag and not start_date:
-            raise TickTickConfigurationError(
-                "Recurrence (repeat_flag) requires start_date. "
-                "TickTick silently ignores recurrence without a start date."
-            )
+        _validate_recurrence_start_date(start_date, repeat_flag)
 
         # Default to inbox if no project specified
         if project_id is None:
@@ -979,6 +987,8 @@ class UnifiedTickTickAPI:
             # Format dates if provided
             start_date = task_spec.get("start_date")
             due_date = task_spec.get("due_date")
+            repeat_flag = task_spec.get("recurrence")
+            _validate_recurrence_start_date(start_date, repeat_flag)
             if start_date and isinstance(start_date, datetime):
                 start_date = Task.format_datetime(start_date, "v2")
             if due_date and isinstance(due_date, datetime):
@@ -1010,7 +1020,7 @@ class UnifiedTickTickAPI:
                 time_zone=task_spec.get("time_zone"),
                 is_all_day=task_spec.get("all_day"),
                 reminders=reminders,
-                repeat_flag=task_spec.get("recurrence"),
+                repeat_flag=repeat_flag,
                 tags=task_spec.get("tags"),
             )
 
