@@ -18,7 +18,7 @@ The script will:
 
 import argparse
 import asyncio
-import secrets
+import html
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
@@ -43,6 +43,14 @@ CALLBACK_PORT = int(urlparse(REDIRECT_URI).port or 8080)
 class OAuthCallbackHandler(BaseHTTPRequestHandler):
     """Handle the OAuth callback."""
 
+    _CSP_HEADER = (
+        "default-src 'none'; "
+        "style-src 'unsafe-inline'; "
+        "base-uri 'none'; "
+        "form-action 'none'; "
+        "frame-ancestors 'none'"
+    )
+
     authorization_code: str | None = None
     state: str | None = None
     error: str | None = None
@@ -64,7 +72,7 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
 
     def _send_success_response(self):
         """Send success HTML response."""
-        html = """
+        html_body = """
         <!DOCTYPE html>
         <html>
         <head><title>Authorization Successful</title></head>
@@ -75,15 +83,12 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
         </body>
         </html>
         """
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html")
-        self.end_headers()
-        self.wfile.write(html.encode())
+        self._send_html_response(200, html_body)
 
     def _send_error_response(self, error: str = None):
         """Send error HTML response."""
-        error_msg = error or OAuthCallbackHandler.error or "Unknown error"
-        html = f"""
+        error_msg = html.escape(error or OAuthCallbackHandler.error or "Unknown error")
+        html_body = f"""
         <!DOCTYPE html>
         <html>
         <head><title>Authorization Failed</title></head>
@@ -94,10 +99,17 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
         </body>
         </html>
         """
-        self.send_response(400)
-        self.send_header("Content-Type", "text/html")
+        self._send_html_response(400, html_body)
+
+    def _send_html_response(self, status_code: int, body: str):
+        """Send an HTML response with restrictive security headers."""
+        self.send_response(status_code)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Security-Policy", self._CSP_HEADER)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
-        self.wfile.write(html.encode())
+        self.wfile.write(body.encode("utf-8"))
 
     def log_message(self, format, *args):
         """Suppress default logging."""

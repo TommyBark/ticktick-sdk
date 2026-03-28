@@ -24,6 +24,7 @@ Example:
 from __future__ import annotations
 
 import asyncio
+import html
 import os
 import sys
 import webbrowser
@@ -92,6 +93,14 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
     of success or failure.
     """
 
+    _CSP_HEADER = (
+        "default-src 'none'; "
+        "style-src 'unsafe-inline'; "
+        "base-uri 'none'; "
+        "form-action 'none'; "
+        "frame-ancestors 'none'"
+    )
+
     # Class variables to store the callback result
     authorization_code: ClassVar[str | None] = None
     state: ClassVar[str | None] = None
@@ -156,15 +165,12 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
         </body>
         </html>
         """
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.end_headers()
-        self.wfile.write(html.encode())
+        self._send_html_response(200, html)
 
     def _send_error_response(self, error: str | None = None) -> None:
         """Send error HTML response."""
-        error_msg = error or OAuthCallbackHandler.error or "Unknown error"
-        html = f"""
+        error_msg = html.escape(error or OAuthCallbackHandler.error or "Unknown error")
+        html_body = f"""
         <!DOCTYPE html>
         <html>
         <head>
@@ -203,10 +209,17 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
         </body>
         </html>
         """
-        self.send_response(400)
+        self._send_html_response(400, html_body)
+
+    def _send_html_response(self, status_code: int, body: str) -> None:
+        """Send an HTML response with restrictive security headers."""
+        self.send_response(status_code)
         self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Security-Policy", self._CSP_HEADER)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
-        self.wfile.write(html.encode())
+        self.wfile.write(body.encode("utf-8"))
 
     def log_message(self, format: str, *args: object) -> None:
         """Suppress default HTTP server logging."""
