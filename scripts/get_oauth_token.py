@@ -29,12 +29,13 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from ticktick_sdk.api.v1.auth import OAuth2Handler
+from ticktick_sdk.constants import DEFAULT_REDIRECT_URI
 
 
 # Configuration - UPDATE THESE VALUES
 CLIENT_ID = os.environ.get("TICKTICK_CLIENT_ID", "")
 CLIENT_SECRET = os.environ.get("TICKTICK_CLIENT_SECRET", "")
-REDIRECT_URI = os.environ.get("TICKTICK_REDIRECT_URI", "http://127.0.0.1:8080/callback")
+REDIRECT_URI = os.environ.get("TICKTICK_REDIRECT_URI", DEFAULT_REDIRECT_URI)
 
 # Parse port from redirect URI
 CALLBACK_PORT = int(urlparse(REDIRECT_URI).port or 8080)
@@ -158,7 +159,7 @@ async def run_manual_mode(handler: OAuth2Handler, auth_url: str):
     print("STEP 2: Authorize the app when prompted")
     print()
     print("STEP 3: After authorizing, you'll be redirected to a URL like:")
-    print("        http://127.0.0.1:8080/callback?code=XXXXX&state=YYYYY")
+    print(f"        {DEFAULT_REDIRECT_URI}?code=XXXXX&state=YYYYY")
     print()
     print("        (The page will show an error - that's OK!)")
     print("        Copy the FULL callback URL or query string from that page.")

@@ -74,6 +74,9 @@ TICKTICK_OAUTH_BASE = "https://ticktick.com/oauth"
 # Default timeout in seconds
 DEFAULT_TIMEOUT = 30.0
 
+# Default OAuth callback URI
+DEFAULT_REDIRECT_URI = "http://127.0.0.1:8080/callback"
+
 # OAuth2 scopes
 OAUTH_SCOPES = ["tasks:read", "tasks:write"]
 

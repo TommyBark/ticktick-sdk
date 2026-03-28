@@ -659,7 +659,7 @@ https://ticktick.com/oauth/authorize?
   client_id=abc123&
   scope=tasks%3Aread%20tasks%3Awrite&
   state=Hs8dKj2mNpQr...&
-  redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fcallback&
+  redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fcallback&
   response_type=code
 ```
 
@@ -686,7 +686,7 @@ Authorization: Basic {base64(client_id:client_secret)}
 code={authorization_code}&
 grant_type=authorization_code&
 scope=tasks:read tasks:write&
-redirect_uri=http://localhost:8080/callback
+redirect_uri=http://127.0.0.1:8080/callback
 ```
 
 **Basic Auth Header Generation:**
@@ -2136,7 +2136,7 @@ def __init__(
     # V1 OAuth2 credentials
     client_id: str,
     client_secret: str,
-    redirect_uri: str = "http://localhost:8080/callback",
+    redirect_uri: str = "http://127.0.0.1:8080/callback",
     v1_access_token: str | None = None,
     # V2 Session credentials
     username: str | None = None,
@@ -3038,7 +3038,7 @@ from ticktick_sdk.api.v1 import TickTickV1Client
 client = TickTickV1Client(
     client_id="...",
     client_secret="...",
-    redirect_uri="http://localhost:8080/callback",
+    redirect_uri="http://127.0.0.1:8080/callback",
 )
 
 auth_url, state = client.get_authorization_url()

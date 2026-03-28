@@ -15,6 +15,7 @@ from datetime import date, datetime, timedelta
 from types import TracebackType
 from typing import Any, TypeVar
 
+from ticktick_sdk.constants import DEFAULT_REDIRECT_URI
 from ticktick_sdk.models import (
     Column,
     Task,
@@ -69,7 +70,7 @@ class TickTickClient:
         # V1 OAuth2 credentials
         client_id: str,
         client_secret: str,
-        redirect_uri: str = "http://localhost:8080/callback",
+        redirect_uri: str = DEFAULT_REDIRECT_URI,
         v1_access_token: str | None = None,
         # V2 Session credentials
         username: str | None = None,

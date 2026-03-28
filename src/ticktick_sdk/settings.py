@@ -17,7 +17,7 @@ from typing import Any
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from ticktick_sdk.constants import DEFAULT_TIMEOUT, OAUTH_SCOPES
+from ticktick_sdk.constants import DEFAULT_REDIRECT_URI, DEFAULT_TIMEOUT, OAUTH_SCOPES
 
 
 def _generate_object_id() -> str:
@@ -80,7 +80,7 @@ class TickTickSettings(BaseSettings):
         description="OAuth2 client secret",
     )
     redirect_uri: str = Field(
-        default="http://localhost:8080/callback",
+        default=DEFAULT_REDIRECT_URI,
         description="OAuth2 redirect URI",
     )
     access_token: SecretStr | None = Field(

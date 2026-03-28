@@ -17,7 +17,7 @@ from typing import Any, TypeVar
 
 from ticktick_sdk.api.v1 import TickTickV1Client
 from ticktick_sdk.api.v2 import TickTickV2Client
-from ticktick_sdk.constants import TaskStatus
+from ticktick_sdk.constants import DEFAULT_REDIRECT_URI, TaskStatus
 from ticktick_sdk.exceptions import (
     TickTickAPIError,
     TickTickAPIUnavailableError,
@@ -233,7 +233,7 @@ class UnifiedTickTickAPI:
         # V1 OAuth2 credentials
         client_id: str,
         client_secret: str,
-        redirect_uri: str = "http://localhost:8080/callback",
+        redirect_uri: str = DEFAULT_REDIRECT_URI,
         v1_access_token: str | None = None,
         # V2 Session credentials
         username: str | None = None,

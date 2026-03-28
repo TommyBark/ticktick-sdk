@@ -310,7 +310,7 @@ def __init__(
     # V1 OAuth2 credentials
     client_id: str,
     client_secret: str,
-    redirect_uri: str = "http://localhost:8080/callback",
+    redirect_uri: str = "http://127.0.0.1:8080/callback",
     v1_access_token: str | None = None,
     # V2 Session credentials
     username: str | None = None,
@@ -529,7 +529,7 @@ def __init__(
     # V1 OAuth2 credentials
     client_id: str,
     client_secret: str,
-    redirect_uri: str = "http://localhost:8080/callback",
+    redirect_uri: str = "http://127.0.0.1:8080/callback",
     v1_access_token: str | None = None,
     # V2 Session credentials
     username: str | None = None,
@@ -1486,7 +1486,7 @@ class TickTickSettings(BaseSettings):
 | **API Host** | `TICKTICK_HOST` | `str` | `ticktick.com` | No |
 | **V1 OAuth2** | `TICKTICK_CLIENT_ID` | `str` | `""` | Yes |
 | | `TICKTICK_CLIENT_SECRET` | `SecretStr` | `""` | Yes |
-| | `TICKTICK_REDIRECT_URI` | `str` | `http://localhost:8080/callback` | No |
+| | `TICKTICK_REDIRECT_URI` | `str` | `http://127.0.0.1:8080/callback` | No |
 | | `TICKTICK_ACCESS_TOKEN` | `SecretStr` | `None` | No |
 | | `TICKTICK_REFRESH_TOKEN` | `SecretStr` | `None` | No |
 | **V2 Session** | `TICKTICK_USERNAME` | `str` | `""` | Yes |

@@ -33,6 +33,7 @@ from typing import ClassVar
 from urllib.parse import parse_qs, urlparse
 
 from ticktick_sdk.api.v1.auth import OAuth2Handler
+from ticktick_sdk.constants import DEFAULT_REDIRECT_URI
 
 
 # =============================================================================
@@ -421,7 +422,7 @@ async def run_manual_mode(
     print(colorize("STEP 2:", Colors.BOLD) + " Authorize the app when prompted")
     print()
     print(colorize("STEP 3:", Colors.BOLD) + " After authorizing, you'll be redirected to a URL like:")
-    print("        http://127.0.0.1:8080/callback?code=XXXXX&state=YYYYY")
+    print(f"        {DEFAULT_REDIRECT_URI}?code=XXXXX&state=YYYYY")
     print()
     print("        (The page will show an error - that's OK!)")
     print("        Copy the FULL callback URL or query string from that page.")
@@ -504,7 +505,7 @@ async def run_auth_flow(manual: bool = False) -> int:
     client_id = os.environ.get("TICKTICK_CLIENT_ID", "")
     client_secret = os.environ.get("TICKTICK_CLIENT_SECRET", "")
     redirect_uri = os.environ.get(
-        "TICKTICK_REDIRECT_URI", "http://127.0.0.1:8080/callback"
+        "TICKTICK_REDIRECT_URI", DEFAULT_REDIRECT_URI
     )
 
     # Validate credentials

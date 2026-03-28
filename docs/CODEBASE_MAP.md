@@ -203,7 +203,7 @@ cookies: dict[str, str]  # Session cookies for subsequent requests
 |----------|----------|------|---------|
 | V1 OAuth2 | `TICKTICK_CLIENT_ID` | str | required |
 | V1 OAuth2 | `TICKTICK_CLIENT_SECRET` | SecretStr | required |
-| V1 OAuth2 | `TICKTICK_REDIRECT_URI` | str | `http://localhost:8080/callback` |
+| V1 OAuth2 | `TICKTICK_REDIRECT_URI` | str | `http://127.0.0.1:8080/callback` |
 | V1 OAuth2 | `TICKTICK_ACCESS_TOKEN` | SecretStr | optional |
 | V1 OAuth2 | `TICKTICK_REFRESH_TOKEN` | SecretStr | optional |
 | V2 Session | `TICKTICK_USERNAME` | str | required |

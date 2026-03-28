@@ -59,7 +59,7 @@ class TickTickV1Client(BaseTickTickClient):
         client = TickTickV1Client(
             client_id="your_client_id",
             client_secret="your_client_secret",
-            redirect_uri="http://localhost:8080/callback",
+            redirect_uri="http://127.0.0.1:8080/callback",
         )
 
         # Get auth URL and exchange code
