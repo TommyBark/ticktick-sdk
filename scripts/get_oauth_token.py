@@ -258,8 +258,9 @@ async def main():
     print(f"\n{token.access_token}\n")
     print("=" * 60)
 
+    print("\nTreat the access token like a password and avoid pasting it into shell history.")
     print("\nAdd this to your .env file:")
-    print(f"\n  TICKTICK_ACCESS_TOKEN={token.access_token}\n")
+    print("\n  TICKTICK_ACCESS_TOKEN=<paste-access-token-above>\n")
 
     if token.expires_in:
         hours = token.expires_in / 3600
@@ -268,7 +269,13 @@ async def main():
         print("Note: Token expiration not specified (may be long-lived)")
 
     if token.refresh_token:
-        print(f"\nRefresh token (save this for later):\n  {token.refresh_token}")
+        masked_token = (
+            f"{token.refresh_token[:6]}...{token.refresh_token[-4:]}"
+            if len(token.refresh_token) > 10
+            else "[hidden]"
+        )
+        print("\nRefresh token returned. Store it securely if you need refresh support.")
+        print(f"  Preview: {masked_token}")
 
     print()
 

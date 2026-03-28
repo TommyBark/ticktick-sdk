@@ -166,6 +166,8 @@ For Claude Code users:
 
 4. **Copy this token** - You'll need it in the next step
 
+> **Security note**: Treat your access token, refresh token, and TickTick password like passwords. Prefer a local `.env` file with restricted permissions or another secret store, and avoid pasting secrets directly into shell history.
+
 > **Note**: Sometimes the browser shows an "invalid credentials" error page. Just refresh the page and it should work.
 
 > **SSH/Headless Users**: Add `--manual` flag for a text-based flow that doesn't require a browser.

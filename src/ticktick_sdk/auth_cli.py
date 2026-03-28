@@ -264,16 +264,18 @@ def print_success_token(token: str) -> None:
     print(colorize("=" * width, Colors.GREEN))
 
 
-def print_env_instruction(token: str) -> None:
-    """Print instructions for using the token."""
+def print_env_instruction() -> None:
+    """Print instructions for using the token without re-echoing secrets."""
     print()
     print(colorize("NEXT STEPS:", Colors.BOLD))
+    print()
+    print("Treat the access token like a password and avoid pasting it into shell history.")
     print()
 
     # Python library users
     print(colorize("For Python Library users:", Colors.BOLD))
     print("  Add to your .env file:")
-    print(colorize(f"    TICKTICK_ACCESS_TOKEN={token}", Colors.CYAN))
+    print(colorize("    TICKTICK_ACCESS_TOKEN=<paste-access-token-above>", Colors.CYAN))
     print()
 
     # Claude Code users
@@ -283,7 +285,7 @@ def print_env_instruction(token: str) -> None:
         f"    claude mcp add ticktick \\\n"
         f"      -e TICKTICK_CLIENT_ID=YOUR_CLIENT_ID \\\n"
         f"      -e TICKTICK_CLIENT_SECRET=YOUR_CLIENT_SECRET \\\n"
-        f"      -e TICKTICK_ACCESS_TOKEN={token} \\\n"
+        f"      -e TICKTICK_ACCESS_TOKEN=YOUR_ACCESS_TOKEN \\\n"
         f"      -e TICKTICK_USERNAME=YOUR_EMAIL \\\n"
         f"      -e TICKTICK_PASSWORD=YOUR_PASSWORD \\\n"
         f"      -- ticktick-sdk",
@@ -316,9 +318,14 @@ def print_token_expiry(expires_in: int | None, refresh_token: str | None) -> Non
         )
 
     if refresh_token:
+        masked_token = (
+            f"{refresh_token[:6]}...{refresh_token[-4:]}"
+            if len(refresh_token) > 10
+            else "[hidden]"
+        )
         print()
-        print("Refresh token (save this for later):")
-        print(colorize(f"  {refresh_token}", Colors.CYAN))
+        print("Refresh token returned. Store it securely if you need refresh support.")
+        print(colorize(f"  Preview: {masked_token}", Colors.CYAN))
 
     print()
 
@@ -571,7 +578,7 @@ async def run_auth_flow(manual: bool = False) -> int:
 
     # Success! Display the token
     print_success_token(token.access_token)
-    print_env_instruction(token.access_token)
+    print_env_instruction()
     print_token_expiry(token.expires_in, token.refresh_token)
 
     return 0
