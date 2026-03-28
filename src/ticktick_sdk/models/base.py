@@ -85,6 +85,8 @@ class TickTickModel(BaseModel):
         if for_api == "v1":
             return value.strftime(DATETIME_FORMAT_V1)
         else:
+            # V2 timestamps are sent as UTC with a fixed +0000 suffix.
+            value = value.astimezone(timezone.utc)
             return value.strftime(DATETIME_FORMAT_V2)
 
     def to_v1_dict(self) -> dict[str, Any]:
