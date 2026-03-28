@@ -112,6 +112,16 @@ Based on analysis of the actual source code of available TickTick Python librari
 pip install ticktick-sdk
 ```
 
+With `uv` from a cloned checkout:
+
+```bash
+# Runtime dependencies only
+uv sync --no-editable
+
+# Include test and development tooling
+uv sync --extra dev --no-editable
+```
+
 **Requirements:**
 - Python 3.11+
 - TickTick account (free or Pro)
@@ -957,6 +967,27 @@ pytest --live
 pytest --cov=ticktick_sdk --cov-report=term-missing
 ```
 
+Using `uv`:
+
+```bash
+# Install runtime + dev dependencies from pyproject.toml
+uv sync --extra dev --no-editable
+
+# All tests (mock mode - no API calls)
+uv run pytest -q
+
+# With verbose output
+uv run pytest -v
+
+# Live tests (requires credentials)
+uv run pytest --live
+
+# With coverage
+uv run pytest --cov=ticktick_sdk --cov-report=term-missing
+```
+
+> **Note:** This project exposes development tooling via the `dev` extra in `[project.optional-dependencies]`, so the correct `uv` flag is `--extra dev`, not `--dev`.
+
 ### Test Markers
 
 | Marker | Description |
@@ -1014,6 +1045,14 @@ cd ticktick-sdk
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
+```
+
+With `uv`:
+
+```bash
+git clone https://github.com/dev-mirzabicer/ticktick-sdk.git
+cd ticktick-sdk
+uv sync --extra dev --no-editable
 ```
 
 ---
